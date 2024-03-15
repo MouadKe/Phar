@@ -21,3 +21,29 @@ typedef struct node {
     med data;
     struct node *next;
 }node;
+
+node* init();
+
+
+int main(){
+    node* array= init();
+    
+
+
+
+
+
+
+    return 0;
+}
+
+node* init(){
+    return (node*)malloc(sizeof(node)*26);
+}
+
+node* createNode(med data){
+    node* temp = (node*)malloc(sizeof(node));
+    temp->data = data;
+    temp->next = NULL;
+    return temp;
+}
