@@ -124,10 +124,8 @@ void fill(node** array,med m){
             array[i] = createNode(m);
         }else{
             node* temp = array[i];
-            while(temp->next!=NULL){
-                temp = temp->next;
-            }
-            temp->next = createNode(m);
+            array[i] = createNode(m);
+            array[i]->next = temp;
         }
     }
 }
