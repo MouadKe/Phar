@@ -49,7 +49,7 @@ bool Manfucdate(date manf,date exp);
 
 int main(){
     
-    node** array= init();
+    node** array= init(26);
     int N;
     printf("Enter the number of medicines: ");
     scanf("%d",&N);
@@ -169,8 +169,8 @@ void PrintStock(const node** array){
                 printf("Name: %s\n",temp->data.name);
                 printf("Quantity: %d\n",temp->data.quantity);
                 printf("Price: %.2f\n",temp->data.price);
-                printf("Manufacturing date: %d/%d/%d\n",temp->data.manf.day,temp->data.manf.month,temp->data.manf.year);
-                printf("Expiry date: %d/%d/%d\n",temp->data.exp.day,temp->data.exp.month,temp->data.exp.year);
+                printf("Manufacturing date: %02d/%02d/%d\n",temp->data.manf.day,temp->data.manf.month,temp->data.manf.year);
+                printf("Expiry date: %02d/%02d/%d\n",temp->data.exp.day,temp->data.exp.month,temp->data.exp.year);
                 printf("=====================\n");
                 temp = temp->next;
             }
@@ -248,4 +248,35 @@ bool BadDate(date d , bool manf){
             }
             break;
     }
+}
+
+node** SearchMedicine(node** array,char name){
+    int i = name - 'A';
+    int counter = 2;
+    node* temp = array[i];
+    node** result = (node**)calloc(sizeof(node*),2);
+    *result = temp;
+    *(result+1) = NULL;
+
+    while(temp!=NULL){
+        counter++;
+        temp = temp->next;
+        result = (node**)realloc(result,sizeof(node*)*counter);
+        *(result+counter-1) = temp;
+    }
+
+    return result;
+}
+
+int PrintSearch(node** result){
+    int counter = 0;
+    for(int i = 0;result[i]!=NULL;i++){
+        counter++;
+        printf("=====================\n");
+        printf("Medecine %d\n",counter+1);
+        printf("Brand: %s\n",result[i]->data.brand);
+        printf("Name: %s\n",result[i]->data.name);
+        printf("=====================\n");
+    }
+    return counter;
 }
