@@ -124,7 +124,7 @@ void readmed(med* m){
         if(counter>0){
             printf("Invalid manufacturing date!!!\n");
         }
-        printf("Enter manufacturing date: ");
+        printf("Enter manufacturing date (dd mm yyyy): ");
         scanf("%d %d %d",&m->manf.day,&m->manf.month,&m->manf.year);
         counter++;
     }while(BadDate(m->manf,true));
@@ -232,7 +232,7 @@ bool expiring(med m){
 bool BadDate(date d , bool manf){
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    if(manf && d.year>tm.tm_year + 1900) return true;
+    if(manf && d.year>(tm.tm_year + 1900)) return true;
     if(d.year<1) return true;
     if (d.month < 1 || d.month > 12) return true;
     if (d.day < 1 || d.day > 31) return true;
@@ -248,6 +248,7 @@ bool BadDate(date d , bool manf){
             }
             break;
     }
+    return false;
 }
 
 node** SearchMedicine(node** array,char name){
