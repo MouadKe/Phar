@@ -49,7 +49,7 @@ bool Manfucdate(date manf,date exp);
 
 int main(){
     
-    node** array= init(26);
+    node** array= init();
     int N;
     printf("Enter the number of medicines: ");
     scanf("%d",&N);
