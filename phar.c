@@ -384,11 +384,12 @@ node** SearchMedicine(node** array){
     node** result = (node**)calloc(sizeof(node*),2);
     *result = temp;
 
-    while(temp!=NULL){
+    while(temp->next!=NULL){
         counter++;
         temp = temp->next;
         result = (node**)realloc(result,sizeof(node*)*counter);
-        *(result+counter-1) = temp;
+        *(result+counter-2) = temp;
+        *(result+counter-1)=NULL;
     }
 
     return result;
