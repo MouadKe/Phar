@@ -45,20 +45,129 @@ bool expiring(med m);
 bool BadDate(date d , bool manf);
 bool Manfucdate(date manf,date exp);
 
+//search functions
+node** SearchMedicine(node** array);
+int PrintSearch(node** result);
+void PrintMedicine(node* result);
+
+//edit functions
+void EditPrice(node* result);
+void EditQuantity(node* result);
+void DeleteMed(node** result , int N , node** array , char name);
+
 
 
 int main(){
     
     node** array= init();
+    node** result;
     int N;
-    printf("Enter the number of medicines: ");
-    scanf("%d",&N);
     med m;
-    for(int i = 0;i<N;i++){
-        readmed(&m);
-        fill(array,m);
-    }
-    PrintStock(array);
+    int choice;
+    int choice2;
+    int counter=0;
+    char trash;
+    do{
+        printf("1- Add medicine\n2- Print stock\n3- Search medicine\n4- Edit medicine\n5- Delete medicine\n6- Exit\n");
+        int choice;
+        scanf("%d",&choice);
+        scanf("%c",&trash);
+        switch(choice){
+            case 1:
+                printf("Enter the number of medicines you want to add: ");
+                scanf("%d",&N);
+                for(int i = 0;i<N;i++){
+                readmed(&m);
+                fill(array,m);
+                }
+                break;
+            case 2:
+                PrintStock(array);
+                break;
+            case 3:
+                result = SearchMedicine(array);
+                N = PrintSearch(result);
+                if(N>0){
+                    
+                    int choice;
+                    int counter=0;
+                    do{
+                        if(counter>0){
+                            printf("Invalid number!!!\n");
+                        }
+                        printf("Enter the number of the medicine you want to know more information about: ");
+                        scanf("%d",&choice);
+                        counter++;
+                        }while(choice<1 || choice>N);
+
+                    if(choice<=N){
+                        choice--;
+                        PrintMedicine(result[choice]);
+                    }
+                        }
+                    
+                
+                break;
+            case 4:
+                result = SearchMedicine(array);
+                N = PrintSearch(result);
+                if(N>0){
+                    counter=0;
+                    do{
+                        if(counter>0){
+                            printf("Invalid number!!!\n");
+                        }
+                        printf("Enter the number of the medicine you want to edit: ");
+                        scanf("%d",&choice);
+                        counter++;
+                    }while(choice<1 || choice>N);
+                    choice--;
+                    
+                    do{
+                        printf("1- Edit price\n2- Edit quantity\n3- Exit\n");
+                        scanf("%d",&choice2);
+                        switch(choice2){
+                            case 1:
+                                EditPrice(result[choice]);
+                                break;
+                            case 2:
+                                EditQuantity(result[choice]);
+                                break;
+                            case 3:
+                                break;
+                            default:
+                                printf("Invalid choice!!!\n");
+                                break;
+                        }
+                    }while(choice2!=3);
+                   
+                }
+                break;
+            case 5:
+                result = SearchMedicine(array);
+                N = PrintSearch(result);
+                if(N>0){
+                    
+                    counter=0;
+                    do{
+                        if(counter>0){
+                            printf("Invalid number!!!\n");
+                        }
+                        printf("Enter the number of the medicine you want to delete: ");
+                        scanf("%d",&choice);
+                        counter++;
+                    }while(choice<1 || choice>N);
+                    choice--;
+                    DeleteMed(result,choice,array,result[choice]->data.name[0]);
+                }
+                break;
+            case 6:
+                return 0;
+            default:
+                printf("Invalid choice!!!\n");
+                break;  
+        }
+    }while(1);
 
 
 
@@ -232,7 +341,15 @@ bool expiring(med m){
 bool BadDate(date d , bool manf){
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    if(manf && d.year>(tm.tm_year + 1900)) return true;
+    if(manf){ 
+        if(d.year>tm.tm_year + 1900) return true;
+        else if(d.year==tm.tm_year + 1900){
+            if(d.month>tm.tm_mon + 1) return true;
+            else if(d.month==tm.tm_mon + 1){
+                if(d.day>tm.tm_mday) return true;
+            }
+        }
+    }
     if(d.year<1) return true;
     if (d.month < 1 || d.month > 12) return true;
     if (d.day < 1 || d.day > 31) return true;
@@ -251,13 +368,21 @@ bool BadDate(date d , bool manf){
     return false;
 }
 
-node** SearchMedicine(node** array,char name){
+
+
+node** SearchMedicine(node** array){
+    char name;
+    char trash;
+    printf("Enter the first letter of the medicine: ");
+    scanf("%c",&name);
+    scanf("%c",&trash);
+    name = toupper(name);
+
     int i = name - 'A';
     int counter = 2;
     node* temp = array[i];
     node** result = (node**)calloc(sizeof(node*),2);
     *result = temp;
-    *(result+1) = NULL;
 
     while(temp!=NULL){
         counter++;
@@ -271,6 +396,13 @@ node** SearchMedicine(node** array,char name){
 
 int PrintSearch(node** result){
     int counter = 0;
+    if(result[0]==NULL){
+        printf("No medicine found!!!\n");
+        return -1;
+    }else if(result[1]==NULL){
+        PrintMedicine(result[0]);
+        return 0;
+    }
     for(int i = 0;result[i]!=NULL;i++){
         counter++;
         printf("=====================\n");
@@ -280,4 +412,54 @@ int PrintSearch(node** result){
         printf("=====================\n");
     }
     return counter;
+}
+
+void PrintMedicine(node* result){
+    printf("=====================\n");
+    printf("Brand: %s\n",result->data.brand);
+    printf("Name: %s\n",result->data.name);
+    printf("Quantity: %d\n",result->data.quantity);
+    printf("Price: %.2f\n",result->data.price);
+    printf("Manufacturing date: %02d/%02d/%d\n",result->data.manf.day,result->data.manf.month,result->data.manf.year);
+    printf("Expiry date: %02d/%02d/%d\n",result->data.exp.day,result->data.exp.month,result->data.exp.year);
+    printf("=====================\n");
+}
+
+
+
+void EditPrice(node* result){
+    int counter = 0;    
+    do{
+        if(counter>0){
+            printf("Invalid price!!!\nPrice should be a positive number\n");
+        }
+        printf("Enter the new price: ");
+        scanf("%f",&result->data.price);
+        counter++;
+    }while(Badnumber(result->data.price));
+}
+
+void EditQuantity(node* result){
+    int counter = 0;
+    do{
+        if(counter>0){
+            printf("Invalid quantity!!!\nQuantity should be a positive number\n");
+        }
+        printf("Enter the new quantity: ");
+        scanf("%d",&result->data.quantity);
+        counter++;
+    }while(Badnumber(result->data.quantity));
+}
+
+void DeleteMed(node** result , int N , node** array , char name){
+    node* temp = result[N];
+    int i = name - 'A';
+    if(N==0){
+        array[i] = result[N]->next;
+    }else{
+        result[N-1]->next = temp->next;
+    }
+
+    free(temp);
+    free(result);
 }
