@@ -110,7 +110,7 @@ int main(){
                 break;
             case 4:
                 result = SearchMedicine(array);
-                N = PrintSearch(result);
+                N = PrintsearchDetails(result);
                 if(N>0){
                     counter=0;
                     do{
@@ -384,11 +384,12 @@ node** SearchMedicine(node** array){
     node** result = (node**)calloc(sizeof(node*),2);
     *result = temp;
 
-    while(temp!=NULL){
+    while(temp->next!=NULL){
         counter++;
         temp = temp->next;
         result = (node**)realloc(result,sizeof(node*)*counter);
-        *(result+counter-1) = temp;
+        *(result+counter-2) = temp;
+        *(result+counter-1)=NULL;
     }
 
     return result;
@@ -406,9 +407,33 @@ int PrintSearch(node** result){
     for(int i = 0;result[i]!=NULL;i++){
         counter++;
         printf("=====================\n");
-        printf("Medecine %d\n",counter+1);
+        printf("Medecine %d\n",counter);
         printf("Brand: %s\n",result[i]->data.brand);
         printf("Name: %s\n",result[i]->data.name);
+        printf("=====================\n");
+    }
+    return counter;
+}
+
+int PrintsearchDetails(node** result){
+    int counter = 0;
+    if(result[0]==NULL){
+        printf("No medicine found!!!\n");
+        return -1;
+    }else if(result[1]==NULL){
+        PrintMedicine(result[0]);
+        return 0;
+    }
+    for(int i = 0;result[i]!=NULL;i++){
+        counter++;
+        printf("=====================\n");
+        printf("Medecine %d\n",counter);
+        printf("Brand: %s\n",result[i]->data.brand);
+        printf("Name: %s\n",result[i]->data.name);
+        printf("Quantity: %d\n",result[i]->data.quantity);
+        printf("Price: %.2f\n",result[i]->data.price);
+        printf("Manufacturing date: %02d/%02d/%d\n",result[i]->data.manf.day,result[i]->data.manf.month,result[i]->data.manf.year);
+        printf("Expiry date: %02d/%02d/%d\n",result[i]->data.exp.day,result[i]->data.exp.month,result[i]->data.exp.year);
         printf("=====================\n");
     }
     return counter;
