@@ -69,7 +69,6 @@ int main(){
     char trash;
     do{
         printf("1- Add medicine\n2- Print stock\n3- Search medicine\n4- Edit medicine\n5- Delete medicine\n6- Exit\n");
-        int choice;
         scanf("%d",&choice);
         scanf("%c",&trash);
         switch(choice){
@@ -89,8 +88,7 @@ int main(){
                 N = PrintSearch(result);
                 if(N>0){
                     
-                    int choice;
-                    int counter=0;
+                    counter=0;
                     do{
                         if(counter>0){
                             printf("Invalid number!!!\n");
@@ -104,6 +102,7 @@ int main(){
                         choice--;
                         PrintMedicine(result[choice]);
                     }
+                    free(result);
                         }
                     
                 
@@ -134,6 +133,7 @@ int main(){
                                 EditQuantity(result[choice]);
                                 break;
                             case 3:
+                                free(result);
                                 break;
                             default:
                                 printf("Invalid choice!!!\n");
@@ -176,6 +176,7 @@ int main(){
     return 0;
 }
 
+//initializing the array of linked lists which each index is a list of medicines that start with the same letter
 node** init(){
     return (node**)calloc(sizeof(node*),26);
 }
@@ -190,12 +191,14 @@ node* createNode(med data){
 
 
 void readmed(med* m){
+    //The counter here works as a flag to tell us if the user inputed a data we can't use so we can ask him to input it again correctly
     int counter =0;
 
 
     printf("Enter brand: ");
     scanf("%s",m->brand);
     Textform(m->brand);
+
 
     do{
         if(counter>0){
@@ -209,6 +212,7 @@ void readmed(med* m){
     }while(BadName(m->name[0]));
     counter = 0;
     
+
     do{
         if(counter>0){
             printf("Invalid quantity!!!\nQuantity should be a positive number\n");
@@ -218,6 +222,7 @@ void readmed(med* m){
         counter++;
     }while(Badnumber(m->quantity));
     counter = 0;
+
 
     do{
         if(counter>0){
@@ -229,6 +234,7 @@ void readmed(med* m){
     }while(Badnumber(m->price));
     counter = 0;
 
+
     do{
         if(counter>0){
             printf("Invalid manufacturing date!!!\n");
@@ -238,6 +244,7 @@ void readmed(med* m){
         counter++;
     }while(BadDate(m->manf,true));
     counter = 0;
+
 
     do{
         if(counter>0){
@@ -252,6 +259,7 @@ void readmed(med* m){
     }while(BadDate(m->exp,false) || Manfucdate(m->manf,m->exp));
 }
 
+//fill array function takes a medicine checks if it's expired and a dd it to the right linked list 
 void fill(node** array,med m){
     int i = m.name[0] - 'A';
     if(expiring(m)){
@@ -287,12 +295,13 @@ void PrintStock(const node** array){
     }
 }
 
+// checks if the number is negative
 bool Badnumber(int N){
     if(N<0) return true;
     return false;
 }
 
-
+// makes the first letter of the brand and the name capital and the rest of the letters small
 void Textform(char* N){
     N[0] = toupper(N[0]);
     for(int i = 1;N[i]!='\0';i++){
@@ -301,13 +310,14 @@ void Textform(char* N){
 
 }
 
+// makes sure the name starts with a letter so we don't try to access to an index that doesn't exist
 bool BadName(char N){
     if(N>='A' && N<='Z') return false;
     return true;
 }
 
 
-
+// checks if the expiry date is before the manufacturing date
 bool Manfucdate(date manf,date exp){
     if(exp.year<manf.year) return true;
     else if(exp.year==manf.year){
@@ -319,6 +329,7 @@ bool Manfucdate(date manf,date exp){
     return false;
 }
 
+// checks if the medicine is expired
 bool expiring(med m){
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
@@ -338,6 +349,7 @@ bool expiring(med m){
     return false;
 }
 
+// checks if the date is valid
 bool BadDate(date d , bool manf){
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
@@ -381,12 +393,16 @@ node** SearchMedicine(node** array){
     int i = name - 'A';
     int counter = 2;
     node* temp = array[i];
+    //we use a dynamic array to store the result of the search
+    // so we can return it and use it later and have O(1) access to the elements
     node** result = (node**)calloc(sizeof(node*),2);
     *result = temp;
 
+    //if the list is empty we return the result array with the first element being NULL
     while(temp->next!=NULL){
         counter++;
         temp = temp->next;
+        //we use realloc to add the new element to the array and keep one extra index Null to keep track of the array later
         result = (node**)realloc(result,sizeof(node*)*counter);
         *(result+counter-2) = temp;
         *(result+counter-1)=NULL;
@@ -395,16 +411,19 @@ node** SearchMedicine(node** array){
     return result;
 }
 
+// this function prints the result of the search and returns the size of the search array
 int PrintSearch(node** result){
     int counter = 0;
     if(result[0]==NULL){
         printf("No medicine found!!!\n");
         return -1;
     }else if(result[1]==NULL){
+        // if there is one element there one element we print all the details
         PrintMedicine(result[0]);
         return 0;
     }
     for(int i = 0;result[i]!=NULL;i++){
+        // if there is more than one element we print the brand and the name only and ask the user to choose which medice they want to know more about
         counter++;
         printf("=====================\n");
         printf("Medecine %d\n",counter);
@@ -415,6 +434,8 @@ int PrintSearch(node** result){
     return counter;
 }
 
+// this function prints the details of a medicine and returns the size of the search array
+// we use this function when the user wants to edit a medicine so we can print the details of the medicine they want to edit
 int PrintsearchDetails(node** result){
     int counter = 0;
     if(result[0]==NULL){
@@ -439,6 +460,7 @@ int PrintsearchDetails(node** result){
     return counter;
 }
 
+// this function prints the details of a medicine
 void PrintMedicine(node* result){
     printf("=====================\n");
     printf("Brand: %s\n",result->data.brand);
@@ -476,15 +498,19 @@ void EditQuantity(node* result){
     }while(Badnumber(result->data.quantity));
 }
 
+
 void DeleteMed(node** result , int N , node** array , char name){
     node* temp = result[N];
     int i = name - 'A';
+    // we check if the node we want to remove is in the start of the search array 
+    // if true we directly delete it from the original array
     if(N==0){
         array[i] = result[N]->next;
     }else{
         result[N-1]->next = temp->next;
     }
-
+    
+    //we free both the deleted node and the search array because we aren't going to use them again
     free(temp);
     free(result);
 }
