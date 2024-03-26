@@ -11,8 +11,8 @@ typedef struct date{
 }date;
 
 typedef struct med {
-    char brand[20];
-    char name[20];
+    char brand[32];
+    char name[32];
     int quantity;
     float price;
     date manf;
